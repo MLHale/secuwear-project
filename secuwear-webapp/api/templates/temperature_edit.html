@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3>Add/Edit temperature</h3>
+    <form method="POST">{% csrf_token %} 
+    	{% autoescape off %}
+        	{{ form.as_p }}
+        	<button type="submit" class="save btn btn-primary">Save</button>
+        {% endautoescape %}
+    </form> 
+	
+	
+
+{% endblock %}

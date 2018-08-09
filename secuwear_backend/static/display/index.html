@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="description" content="Crossfilter visualization for real-time events from IoT device, Android, BLE channel, and Web services" >
+		<meta name="author" content="Isaac Shrestha - Graduate student of ML Hale, 2016 - 2018">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>SecuWear - Events visualization</title>
+
+		<link rel="stylesheet" href="static/display/css/dc.css" />
+		<!-- links for datatable -->
+		<link rel="stylesheet" href="static/display/css/dataTables.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.js"></script>
+		
+		<!-- links for bootstrap -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<h3 class="header">Events from various domains in IoT</h3>
+				</div>
+			</div>
+			
+			<div class="row">
+
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 nav">&nbsp;</div>
+			</div>
+			
+			<div class="clean">&nbsp;</div>
+			<div class="row">
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+					<div class="dc-data-count strong">
+						<span class="filter-count"></span> selected out of <span class="total-count"></span> events |  
+						<a href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+					</div>
+				</div>
+			</div>
+			
+			<div class="clean">&nbsp;</div>
+			
+			<div class="row">
+
+				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+					<div class="domain" id="domain">
+						<div class="graph-header">
+							<p><strong class="strong">Domains</strong> <br/>
+								<span class="reset" style="display: none;">Selected: <span class="filter"></span></span>
+							<a class="reset" href="javascript:domainChart.filterAll();dc.redrawAll();" style="display: none;">Reset</a>
+							
+							</p>
+						</div>						
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+					<div class="eventTypes" id="eventTypes" style="100%;">
+						<div class="graph-header">
+							<p>
+								<strong class="strong">EventTypes</strong> <br/>
+								<span class="reset" style="display: none;">Selected: <span class="filter"></span></span>
+								<a class="reset" href="javascript:eventTypeChart.filterAll();dc.redrawAll();" style="display: none;">Reset</a>
+							</p>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+
+				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+					<div class="events" id="events" style="100%;">
+						<div class="graph-header">
+							<p>
+								<strong class="strong">Events</strong> <br/>
+								<span class="reset" style="display: none;">Selected: <span class="filter"></span></span>
+								<a class="reset" href="javascript:eventChart.filterAll();dc.redrawAll();" style="display: none;">Reset</a>
+							</p>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+				
+			</div> <!-- end of domain row -->
+
+			
+			<div class="row">
+
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+					<div class="scatter-plot dc-chart" id="move-chart" style="100%;">
+						<div class="graph-header">
+							<strong class="strong">Select time range to zoom in</strong> <br/>
+							<span class="reset" style="display: none;">Range: <span class="filter"></span></span>
+						<a class="reset" href="javascript:moveChart.filterAll();volumeChart.filterAll();dc.redrawAll();"
+						   style="display: none;">Reset</a>
+						</div>
+					</div>
+					<div class="scatter-plot">
+						<div id="monthly-volume-chart" style="width: 100%;"></div>
+					</div>
+				</div>
+				</div>
+				
+			</div> <!-- end of domain row -->
+			
+			
+			
+		
+		
+		
+		
+		<script src="static/display/script/crossfilter.js"></script>
+		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<script src="static/display/script/dc.js"></script> 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js"></script>
+		<script>
+			var domainChart = dc.pieChart("#domain"),
+			eventTypeChart = dc.rowChart("#eventTypes"),
+			eventChart = dc.rowChart("#events"),
+			moveChart = dc.scatterPlot('#move-chart'),
+			volumeChart = dc.barChart('#monthly-volume-chart'),
+			visCount = dc.dataCount(".dc-data-count");
+				
+			d3.json("/api/events", function(err, dataFromServer){
+				if(err) throw err;
+				
+				var eventObjLength = dataFromServer.data.length;
+				//console.log("testing json output "+dataFromServer.data[0].attributes.event);
+				//console.log("testing json length "+dataFromServer.data.length);
+
+				/*dataFromServer.data.forEach(function (d) {
+					console.log("Time check = "+ new Date(d.attributes.created));
+					d.attributes.Timestamp = new Date(d.attributes.created);
+					//console.log("Time check = "+ d.Timestamp);
+				});*/
+
+				/*
+				for (var i = 0; i< dataFromServer.data.length; i++)
+				{
+					var obj = dataFromServer.data[i].attributes;
+					for (var key in obj)
+					{
+						console.log(key+"="+obj[key]);
+					}
+				}
+				*/
+
+				dataFromServer.data.forEach(function (d) {
+					d.Timestamp = new Date(d.attributes.created);
+					
+				});
+
+				var ndx = crossfilter(dataFromServer.data);
+				var all = ndx.groupAll();
+				
+				//Ticks
+				var ticks = [0,1,2];
+				var tickLabels = ['Bluetooth','Mobile','Web'];
+				
+
+				//Dimensions
+				var domainDim = ndx.dimension(function(d){return d.attributes.domain;});
+				var eventTypeDim = ndx.dimension(function(d){ return d.attributes.eventtype;});
+				var eventDim = ndx.dimension(function(d){ return d.attributes.event;});
+				var timeDim = ndx.dimension(function (d) { return (new Date(d.attributes.created)); });
+				var runDim = ndx.dimension(function(d){ console.log(d.Timestamp+" "+d.attributes.domainVal);
+					
+					return [+d.Timestamp, +d.attributes.domainVal];
+				});
+
+				//Groups
+				var domainGroup=domainDim.group();
+				var eventGroup = eventDim.group();
+				var eventTypeGroup = eventTypeDim.group();
+				var timeGroup = timeDim.group();
+				var runGroup = runDim.group();
+
+				domainChart
+					.innerRadius(40)
+					.width(450)
+					.dimension(domainDim)
+					.group(domainGroup)
+					.ordinalColors(['#FF6600','#666666','#0066FF']);
+
+				eventChart
+					.width(500)
+					.dimension(eventDim)
+					.group(eventGroup)
+					.data(function(group){ return group.top(dataFromServer.data.length); })
+					.elasticX(true);
+
+				eventTypeChart
+					.width(450)
+					.dimension(eventTypeDim)
+					.group(eventTypeGroup)
+					.data(function(group){ return group.top(dataFromServer.data.length); })
+					.elasticX(true);
+
+				moveChart /* dc.lineChart('#move-chart', 'chartGroup') */
+					//.renderArea(true)
+					.height(200)
+					.brushOn(true)
+					.symbolSize(4)
+					.clipPadding(10)
+					.transitionDuration(1000)
+					.margins({top: 30, right: 50, bottom: 25, left: 40})
+					.dimension(runDim)
+					.group(runGroup)
+					.mouseZoomable(true)
+					//.rangeChart(volumeChart) //this will remove the unselected area from volume chart
+					.x(d3.time.scale().domain([new Date(dataFromServer.data[0].attributes.created), new Date(dataFromServer.data[parseInt(eventObjLength) - 1].attributes.created)]))
+					.round(d3.time.minute.round)
+					.xUnits(d3.time.minute)
+					.elasticY(true)
+					.renderHorizontalGridLines(true)
+					.yAxis().ticks(2).tickFormat(function(d, i){ 
+							return tickLabels[i];
+						})
+
+					
+				volumeChart /* dc.barChart('#monthly-volume-chart', 'chartGroup'); */
+					.height(60)
+					.margins({top: 0, right: 50, bottom: 20, left: 40})
+					.dimension(timeDim)
+					.group(timeGroup)
+					.centerBar(true)
+					.gap(2)
+					.x(d3.time.scale().domain([new Date(dataFromServer.data[0].attributes.created), new Date(dataFromServer.data[parseInt(eventObjLength) - 1].attributes.created)]))
+					.round(d3.time.minute.round)
+					.alwaysUseRounding(true)
+					.xUnits(d3.time.minute)
+					.yAxis().ticks(0);
+					
+				visCount
+					.dimension(ndx)
+					.group(all); 
+				
+				/*var visTable = $("#data-table").dataTable({
+						"fixedHeader": true,
+						"bPaginate": true,
+						"bLengthChange": true,
+						"bFilter": true,
+						"bSort": true,
+						"bInfo": true,
+						"bAutoWidth": true,
+						"bDeferRender": true,
+						"aaData": timeDim.top(Infinity),
+						"bDestroy": true,
+						"aoColumns": [
+							{"mData": "Timestamp", "sDefaultContent": ""},
+							{"mData": "eventid", "sDefaultContent": ""},
+							{"mData": "event-type", "sDefaultContent": ""},
+							{"mData": "event", "sDefaultContent": ""},
+							{"mData": "codereference", "sDefaultContent": ""},
+							{"mData": "domain", "sDefaultContent": ""},
+							{"mData": "pcap-id", "sDefaultContent": ""},
+							{"mData": "cap-length", "sDefaultContent": ""},
+							{"mData": "highest-layer", "sDefaultContent": ""},
+							{"mData": "epoch-time", "sDefaultContent": ""},
+							{"mData": "arrival-time", "sDefaultContent": ""},
+							{"mData": "access-address", "sDefaultContent": ""},
+							{"mData": "adv-address", "sDefaultContent": ""},
+							{"mData": "adv-header", "sDefaultContent": ""},
+							{"mData": "crc", "sDefaultContent": ""},
+							{"mData": "ppi-flags", "sDefaultContent": ""},
+							{"mData": "ppi-version", "sDefaultContent": ""},
+							{"mData": "ppi-dlt", "sDefaultContent": ""},
+							{"mData": "ppi-header", "sDefaultContent": ""},
+							{"mData": "ppi-reserved", "sDefaultContent": ""}
+						]
+					});
+					
+					//to adjust table according to selection in other graphical displays
+					function RefreshTable(){
+						dc.events.trigger(function(){
+							alldata = timeDim.top(Infinity);
+							datatable.fnClearTable();
+							datatable.fnAddData(alldata);
+							datatable.fnDraw();
+						});
+					}
+					
+				//to adjust table according to selection in other graphical displays
+					function RefreshTable(){
+						dc.events.trigger(function(){
+							alldata = timeDim.top(Infinity);
+							visTable.fnClearTable();
+							visTable.fnAddData(alldata);
+							visTable.fnDraw();
+						});
+					} 
+					
+					for(var i=0; i< dc.chartRegistry.list().length; i++){
+						var chartI = dc.chartRegistry.list()[i];
+						chartI.on("filtered", RefreshTable);
+					} */
+				
+			dc.renderAll();
+			}); //end of d3.json function
+		</script>
+	</body>
+</html>

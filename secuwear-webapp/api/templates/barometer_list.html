@@ -1,0 +1,31 @@
+	{% extends 'base.html' %}
+		{% block content %}
+			<div class="row">
+				<h3>Barometer Data</h3>
+			</div>
+			<div class="row">
+				<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+					
+					<table class="table">
+					  <thead>
+					    <tr>
+					      <th scope="col">Time</th>
+					      <th scope="col">Pressure</th>
+					      <th scope="col">Altitude</th>
+					    </tr>
+					  </thead>
+					  <tbody>
+					  	{% for pressure in data %}
+						    <tr>
+						      <td>{{ pressure.time }}</td>
+						      <td>{{ pressure.pressure }}</td>
+						      <td>{{ pressure.altitude }}</td>
+						    </tr>
+						{% endfor %}
+					  </tbody>
+					</table>
+				</div>
+			</div>
+			
+		</div>
+		{% endblock %}
