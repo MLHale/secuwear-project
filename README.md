@@ -123,16 +123,40 @@ $dbname = "metaweardb";
 
 ## 5. ubertooth, libbtbb, secuwear-client-ubertooth
 
-- $cd secuwear-client-ubertooth
-- install using 
+### libbtbb
+- Run the following commands to install libbtbb
+```sh
+cd libbtbb
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+### ubertooth
+- Run the following commands to install ubertooth
 ``` sh
+cd ubertooth/host
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
+### secuwear-client-ubertooth
+- Run the following commands to install secuwear-client-ubertooth
+
+``` sh
+$cd secuwear-client-ubertooth
 $sudo python setup.py develop
 ```
+
 After installation
-- insert Ubertooth one device into the usb port
+- insert Ubertooth device into the usb port
 - begin bluetooth capture using the following code:
 ``` sh
-$ubertooth-btle -f -c /path/pipe
+$ubertooth-btle -f -c /path/pipeName
 ```
 
 
